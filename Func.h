@@ -11,14 +11,19 @@ using std::function;
 
 class Func {
 private:
-	string& name;
+	string name;
 	Precedence preced;
 	Associativity assoc;
 	int arity;
 	function<double(double, double)> func;
 public:
-	Func(string& name, Precedence preced, Associativity assoc, int arity) : 
-		name(name), preced(preced), assoc(assoc), arity(arity) {}
+	Func(
+		string name,
+		Precedence preced,
+		Associativity assoc,
+		int arity,
+		function<double(double, double)> func
+	) : name(name), preced(preced), assoc(assoc), arity(arity), func(func) {}
 
 	string& Name() { return this->name; }
 

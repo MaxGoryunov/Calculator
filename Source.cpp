@@ -2,10 +2,22 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <map>
+#include <string>
+#include <iostream>
+#include <stack>
+#include <functional>
+#include "Funcs.h"
 
 using std::map;
+using std::string;
+using std::cout;
+using std::endl;
+using std::stack;
+using std::function;
 
 #pragma warning(disable:4996)
+
+char const DELIMITER = ';';
 
 // Операторы
 // Приоритет Оператор Ассоциативность
@@ -21,7 +33,6 @@ int op_preced(const char c) {
 
     case '*':
     case '/':
-    case '%':
         return 3;
 
     case '+':
@@ -66,6 +77,86 @@ unsigned int op_arg_count(const char c)
         return c - 'A';
     }
     return 0;
+}
+
+bool isIdent(string const& token) {
+    return token >= "0" && token <= "9";
+}
+
+bool isIdent(char token) {
+    return isIdent(string{ token });
+}
+
+bool isLetter(string const& token) {
+    return token >= "A" && token <= "Z";
+}
+
+bool isLetter(char token) {
+    return isLetter(string{ token });
+}
+
+bool isUnary(string const& name, Funcs& funcs) {
+    if (name == "(" || name == ")") {
+        return false;
+    }
+    if (funcs.associativity(name) == LEFT && funcs.arity(name) == 1) {
+        return true;
+    }
+    return false;
+
+}
+
+bool isArithmeticFunction(string const& token, Funcs& funcs) {
+    if (token == "(" || token == ")") {
+        return false;
+    }
+    Associativity assoc = funcs.associativity(token);
+    int arity = funcs.arity(token);
+    if ((assoc == LEFT && arity == 2) || (assoc == RIGHT && arity == 1)) {
+        return true;
+    }
+    return false;
+}
+
+bool rearrangeParentheses(stack<string>& tokens, string& output, Funcs& funcs) {
+    string top;
+    while (!tokens.empty()) {
+        top = tokens.top();
+        tokens.pop();
+        if (top == "(") {
+            break;
+        }
+        else {
+            output += top + DELIMITER;
+        }
+    }
+    if (tokens.empty() && top != "(") {
+        cout << "Number of left and right parentheses does not match" << endl;
+        return false;
+    }
+    if (!tokens.empty()) {
+        top = tokens.top();
+        if (isUnary(top, funcs)) {
+            output += top + DELIMITER;
+            tokens.pop();
+        }
+    }
+    return true;
+}
+
+void rearrangeOperators(stack<string>& tokens, string& current, string& output, Funcs& funcs) {
+    while (!tokens.empty()) {
+        string top = tokens.top();
+        if (isArithmeticFunction(top, funcs) && ((funcs.associativity(current) && (funcs.precedence(current) <= funcs.precedence(top)))
+            || (!funcs.associativity(current) && (funcs.precedence(current) < funcs.precedence(top))))) {
+            output += top + DELIMITER;
+            tokens.pop();
+        }
+        else {
+            break;
+        }
+    }
+    tokens.push(current);
 }
 
 #define is_operator(c) (c == '+' || c == '-' || c == '/' || c == '*' || c == '!' || c == '%')
@@ -216,6 +307,70 @@ bool shunting_yard(const char* input, char* output)
 
     *outpos = 0; // Добавляем завершающий ноль к строке
     return true;
+}
+
+void readWhile(string const& input, int& start, string& current, function<bool(char)> predicate) {
+    int length = input.length();
+    int i = 0;
+    while (i < length) {
+        i = start + 1;
+        char tok = input[i];
+        if (predicate(tok)) {
+            current += tok;
+        }
+        else {
+            break;
+        }
+        start++;
+    }
+}
+
+void readWholeNumber(string const& input, int& start, string& current) {
+    return readWhile(input, start, current, [](char tok) { return isIdent(tok) || tok == '.'; });
+}
+
+void readWholeWord(string const& input, int& start, string& current) {
+    return readWhile(input, start, current, [](char tok) { return isLetter(tok); });
+}
+
+bool shunting_yard(string const& input, string& output) {
+    cout << "SY for string" << endl;
+    stack<string> tokens;
+    Funcs funcs;
+    int length = input.length();
+    output = "";
+    for (int i = 0; i < length; ++i) {
+        char tok = input[i];
+        string current{ tok };
+        if (current != " ") {
+            if (isIdent(tok)) {
+                readWholeNumber(input, i, current);
+                output += current + DELIMITER;
+            }
+            else if (isLetter(tok)) {
+                readWholeWord(input, i, current);
+                if (isUnary(current, funcs)) {
+                    tokens.push(current);
+                }
+            }
+            else if (isArithmeticFunction(current, funcs)) {
+                rearrangeOperators(tokens, current, output, funcs);
+            }
+            else if (current == "(") {
+                tokens.push(current);
+            }
+            else if (current == ")") {
+                if (!rearrangeParentheses(tokens, output, funcs)) {
+                    return false;
+                }
+            }
+            else
+            {
+                cout << "Token " << current << " is an unknown token" << endl;
+                return false;
+            }
+        }
+    }
 }
 
 bool execution_order(const char* input)
