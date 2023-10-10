@@ -17,6 +17,7 @@ private:
 	int arity;
 	function<double(double, double)> func;
 public:
+	Func() {}
 	Func(
 		string name,
 		Precedence preced,

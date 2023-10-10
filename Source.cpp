@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stack>
 #include <functional>
+#include <vector>
 #include "Funcs.h"
 
 using std::map;
@@ -14,6 +15,9 @@ using std::cout;
 using std::endl;
 using std::stack;
 using std::function;
+using std::vector;
+using std::stod;
+using std::to_string;
 
 #pragma warning(disable:4996)
 
@@ -333,8 +337,21 @@ void readWholeWord(string const& input, int& start, string& current) {
     return readWhile(input, start, current, [](char tok) { return isLetter(tok); });
 }
 
+bool tokensCleanup(stack<string> tokens, string& output) {
+    while (!tokens.empty()) {
+        string top = tokens.top();
+        tokens.pop();
+        if (top == "(" || top == ")") {
+            cout << "Error: parentheses mismatched" << endl;
+            return false;
+        }
+        output += top + DELIMITER;
+    }
+    return true;
+}
+
 bool shunting_yard(string const& input, string& output) {
-    cout << "SY for string" << endl;
+    //cout << "SY for string" << endl;
     stack<string> tokens;
     Funcs funcs;
     int length = input.length();
@@ -371,6 +388,7 @@ bool shunting_yard(string const& input, string& output) {
             }
         }
     }
+    return tokensCleanup(tokens, output);
 }
 
 bool execution_order(const char* input)
@@ -464,18 +482,89 @@ bool execution_order(const char* input)
     return false;
 }
 
+bool evaluate(string const& input) {
+    int length = input.length();
+    Funcs funcs;
+    vector<string> labels(length);
+    vector<double> values(length);
+    int last = 0;
+    int iteration = 0;
+    for (int i = 0; i < length; ++i) {
+        string current{ input[i] };
+        if (isIdent(current)) {
+            readWholeNumber(input, i, current);
+            ++i;
+            labels[last] = current;
+            values[last] = stod(current);
+            ++last;
+        }
+        else {
+            if (isLetter(current)) {
+                readWholeWord(input, i, current);
+                labels[last] = current;
+            }
+            ++i;
+            if (isArithmeticFunction(current, funcs) || isUnary(current, funcs)) {
+                int arity = funcs.arity(current);
+                string label = "[" + to_string(iteration++) + "]";
+                cout << label << " = ";
+                if (last < arity) {
+                    cout << "Not enough arguments" << endl;
+                    return false;
+                }
+                --last;
+                double prev = values[last];
+                double value;
+                if (arity == 1) {
+                    if (funcs.associativity(current) == LEFT) {
+                        cout << (current + " " + labels[last]);
+                    }
+                    else {
+                        cout << (labels[last] + " " + current);
+                    }
+                    value = funcs.call(current, prev, 0);
+                    cout << " = " << value << endl;
+                }
+                else {
+                    --last;
+                    value = funcs.call(current, values[last], prev);
+                    cout << labels[last] << " " << input[i - 1] << " " << 
+                        labels[last + 1] << " = " << value << endl;
+                }
+                labels[last] = label;
+                values[last] = value;
+                ++last;
+            }
+        }
+    }
+    if (last == 1) {
+        --last;
+        cout << "Finally: " << labels[last] << " = " << values[last] << endl;
+        return true;
+    }
+    cout << "Too many values entered" << endl;
+    return false;
+}
+
 int main()
 {
     // Имена функций: A() B(a) C(a, b), D(a, b, c) ...
     // идентификаторы: 0 1 2 3 ... and a b c d e ...
     // операторы: = - + / * % !
-    const char* input = "D(f - b * c + d, !e, g)";
+    const char* input = "(3*4+5)*(2+7/8)";
     char output[128];
     printf("input: %s\n", input);
     if (shunting_yard(input, output))
     {
+
         printf("output: %s\n", output);
         execution_order(output);
     }
+    string inp = "(3*4.5+5)*(2+7.2/8)+4";
+    cout << "------" << endl;
+    string out;
+    shunting_yard(string{ inp }, out);
+    cout << out << endl;
+    evaluate(out);
     return 0;
 }

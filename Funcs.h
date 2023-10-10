@@ -6,6 +6,8 @@
 
 using std::string;
 using std::map;
+using std::cout;
+using std::endl;
 
 class Funcs {
 private:
