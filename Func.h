@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include <Windows.h>
 #include "Precedence.h"
 #include "Associativity.h"
 
@@ -17,7 +18,7 @@ private:
 	int arity;
 	function<double(double, double)> func;
 public:
-	Func() {}
+	Func() = default;
 	Func(
 		string name,
 		Precedence preced,
@@ -26,11 +27,13 @@ public:
 		function<double(double, double)> func
 	) : name(name), preced(preced), assoc(assoc), arity(arity), func(func) {}
 
+	static Func fromLibrary(HINSTANCE const& library);
+
 	string& Name() { return this->name; }
 
-	Precedence Precedence() { return this->preced; }
+	Precedence precedence() { return this->preced; }
 	
-	Associativity Associativity() { return this->assoc; }
+	Associativity associativity() { return this->assoc; }
 	
 	int Arity() { return this->arity; }
 	

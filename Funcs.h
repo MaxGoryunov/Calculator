@@ -20,9 +20,13 @@ public:
 		this->funcs["/"] = Func("/", DIV, LEFT, 2, [](double l, double r) { return l / r; });
 	}
 
+	void addFunc(string name, Func const& func) {
+		this->funcs[name] = func;
+	}
+
 	Precedence precedence(string name) {
 		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].Precedence();
+			return this->funcs[name].precedence();
 		}
 		cout << "Precedence of " << name << " is unknown" << endl;
 		return NO_PRECEDENCE;
@@ -30,7 +34,7 @@ public:
 
 	Associativity associativity(string name) {
 		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].Associativity();
+			return this->funcs[name].associativity();
 		}
 		cout << "Associativity of " << name << " is unknown" << endl;
 		return NO_ASSOCIATIVITY;
@@ -51,6 +55,10 @@ public:
 		cout << "Functionality of " << name << " is unknown" << endl;
 		return 0;
 	}
+
+	bool isUnary(string const& name);
+
+	bool isArithmetic(string const& name);
 
 	Funcs(Funcs const& other) = default;
 	Funcs(Funcs&& other) = default;
