@@ -128,6 +128,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
         }
     }
     tokensCleanup(tokens, output);
+    cout << output << endl;
     this->tokenized = output;
 }
 
