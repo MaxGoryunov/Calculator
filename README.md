@@ -9,15 +9,26 @@ step-by-step and finally produce the result.
 ### Arithmetic functions
 
 Addition: `3 + 4`
+
 Subtraction: `7 - 2`
+
 Multiplication: `4 * 8`
+
 Division: `9 / 3`
 
 ### Mathematical functions
 
 Sine: `sin(3.14)`
+
 Exponentiation: `exp(1.5)`
+
 Round function: `round(2.38)`
+
+Natural log: `ln(2.7)`
+
+## Supported inputs
+
+Parser supports any valid input, meaning that the number of opening and closing parentheses must be equal. On top of that, only positive rational numbers are currently supported. If you want to use a negative number, prepend it with a zero.
 
 ## Adding other implementations
 
@@ -42,7 +53,7 @@ int arity(void);
 double apply(double left, double right);
 ```
 
-Do not forget to append these declarations with `extern "C"` and
+Do not forget to prepend these declarations with `extern "C"` and
 `__declspec(dllexport)`.
 
 ## Example
