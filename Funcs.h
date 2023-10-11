@@ -56,6 +56,10 @@ public:
 		return 0;
 	}
 
+	bool isUnary(string const& name);
+
+	bool isArithmetic(string const& name);
+
 	Funcs(Funcs const& other) = default;
 	Funcs(Funcs&& other) = default;
 	Funcs& operator = (Funcs const& other) = default;
