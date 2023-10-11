@@ -34,3 +34,5 @@
 # Visual Studio files
 *.vcxproj*
 Debug/
+
+x64/
