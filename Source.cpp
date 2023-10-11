@@ -8,16 +8,23 @@
 #include <functional>
 #include <vector>
 #include "Funcs.h"
+#include "App.h"
 #include "Expression.h"
+#include "DllCatalogue.h"
+
+using std::cin;
+using std::string;
+using std::getline;
 
 int main() {
-    const char* input = "(3*4+5)*(2+7/8)";
-    char output[128];
-    printf("input: %s\n", input);
-    string inp = "(3*4.5+5)*(2+7.2/8)+4";
-    Expression exp;
+    Expression expression;
     Funcs funcs;
-    exp.separateTokens(inp, funcs);
-    exp.printResult(funcs);
+    DllCatalogue libraries("libs");
+    App app(expression, libraries, funcs);
+    while (true) {
+        string input;
+        getline(cin, input);
+        app.calculate(input);
+    }
     return 0;
 }
