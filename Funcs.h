@@ -20,6 +20,10 @@ public:
 		this->funcs["/"] = Func("/", DIV, LEFT, 2, [](double l, double r) { return l / r; });
 	}
 
+	void addFunc(string name, Func& func) {
+		this->funcs[name] = func;
+	}
+
 	Precedence precedence(string name) {
 		if (this->funcs.count(name) == 1) {
 			return this->funcs[name].Precedence();
