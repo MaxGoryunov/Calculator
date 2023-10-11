@@ -11,6 +11,6 @@ public:
 	}
 
 	static bool isLetter(string const& token) {
-		return token >= "A" && token <= "Z";
+		return (token >= "A" && token <= "Z") || (token >= "a" && token <= "z");
 	}
 };
