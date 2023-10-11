@@ -13,6 +13,7 @@ void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 		path filepath = file.path();
 		if (filepath.extension() == ".dll") {
 			HINSTANCE library = LoadLibraryW(filepath.c_str());
+			cout << "Loaded " << filepath.c_str() << endl;
 			if (library) {
 				this->libraries.push_back(library);
 				Func func = Func::fromLibrary(library);
