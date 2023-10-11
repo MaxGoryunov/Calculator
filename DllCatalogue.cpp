@@ -15,7 +15,8 @@ void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 			HINSTANCE library = LoadLibraryW(filepath.c_str());
 			if (library) {
 				this->libraries.push_back(library);
-				//add func to funcs
+				Func func = Func::fromLibrary(library);
+				funcs.addFunc(func.Name(), func);
 			}
 			else {
 				cout << "Could not open .dll file " << filepath.c_str() << endl;
@@ -23,4 +24,10 @@ void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 		}
 	}
 
+}
+
+DllCatalogue::~DllCatalogue() {
+	for (auto const& library : this->libraries) {
+		FreeLibrary(library);
+	}
 }

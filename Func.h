@@ -35,7 +35,7 @@ public:
 	
 	Associativity associativity() { return this->assoc; }
 	
-	int arity() { return this->arity; }
+	int Arity() { return this->arity; }
 	
 	double apply(double left, double right) { return this->func(left, right); }
 
