@@ -2,6 +2,8 @@
 #include <functional>
 #include "Expression.h"
 #include "StringUtils.h"
+#include "Tokens.h"
+#include "CalculationMessage.h"
 
 using std::map;
 using std::string;
@@ -14,46 +16,6 @@ using std::stod;
 using std::to_string;
 using std::runtime_error;
 using SU = StringUtils;
-
-bool Expression::rearrangeParentheses(stack<string>& tokens, Funcs& funcs) {
-    string top;
-    while (!tokens.empty()) {
-        top = tokens.top();
-        tokens.pop();
-        if (top == "(") {
-            break;
-        }
-        else {
-            this->tokens.push_back(top);
-        }
-    }
-    if (tokens.empty() && top != "(") {
-        throw runtime_error("Number of left and right parentheses does not match");
-    }
-    if (!tokens.empty()) {
-        top = tokens.top();
-        if (funcs.isUnary(top)) {
-            this->tokens.push_back(top);
-            tokens.pop();
-        }
-    }
-    return true;
-}
-
-void Expression::rearrangeOperators(stack<string>& tokens, string& current, Funcs& funcs) {
-    while (!tokens.empty()) {
-        string top = tokens.top();
-        if (funcs.isArithmetic(top) && ((funcs.associativity(current) && (funcs.precedence(current) <= funcs.precedence(top)))
-            || (!funcs.associativity(current) && (funcs.precedence(current) < funcs.precedence(top))))) {
-            this->tokens.push_back(top);
-            tokens.pop();
-        }
-        else {
-            break;
-        }
-    }
-    tokens.push(current);
-}
 
 void Expression::readWhile(string const& input, int& start, string& current, function<bool(char)> predicate) {
     int length = input.length();
@@ -79,45 +41,31 @@ void Expression::readWholeWord(string const& input, int& start, string& current)
     return readWhile(input, start, current, [](char tok) { return SU::isLetter(string{ tok }); });
 }
 
-bool Expression::tokensCleanup(stack<string> tokens) {
-    while (!tokens.empty()) {
-        string top = tokens.top();
-        tokens.pop();
-        if (top == "(" || top == ")") {
-            throw runtime_error("Error: parentheses mismatched");
-        }
-        this->tokens.push_back(top);
-    }
-    return true;
-}
-
 void Expression::separateTokens(string const& input, Funcs& funcs) {
-    stack<string> tokens;
-    //Funcs funcs;
+    Tokens tokens;
     int length = input.length();
     this->tokens.clear();
     for (int i = 0; i < length; ++i) {
-        char tok = input[i];
-        string current{ tok };
+        string current{ input[i] };
         if (current != " ") {
-            if (SU::isDigit(string{ tok })) {
+            if (SU::isDigit(current)) {
                 readWholeNumber(input, i, current);
                 this->tokens.push_back(current);
             }
-            else if (SU::isLetter(string{ tok })) {
+            else if (SU::isLetter(current)) {
                 readWholeWord(input, i, current);
                 if (funcs.isUnary(current)) {
                     tokens.push(current);
                 }
             }
             else if (funcs.isArithmetic(current)) {
-                rearrangeOperators(tokens, current, funcs);
+                tokens.rearrangeOperators(current, funcs, this->tokens);
             }
             else if (current == "(") {
                 tokens.push(current);
             }
             else if (current == ")") {
-                if (!rearrangeParentheses(tokens, funcs)) {
+                if (!tokens.rearrangeParentheses(funcs, this->tokens)) {
                     return;
                 }
             }
@@ -128,7 +76,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
             }
         }
     }
-    tokensCleanup(tokens);
+    tokens.cleanup(this->tokens);
 }
 
 void Expression::printResult(Funcs& funcs) {
@@ -137,54 +85,30 @@ void Expression::printResult(Funcs& funcs) {
     vector<double> values(length);
     int last = 0;
     int iteration = 0;
+    CalculationMessage message(labels, values);
     for (int i = 0; i < length; ++i) {
         string current = this->tokens[i];
         if (SU::isNumber(current)) {
-            labels[last] = current;
-            values[last] = stod(current);
+            //labels[last] = current;
+            //values[last] = stod(current);
+            message.setLabel(current, last);
+            message.setValue(stod(current), last);
             ++last;
         }
         else {
             if (SU::isWord(current)) {
-                labels[last] = current;
+                //labels[last] = current;
+                message.setLabel(current, last);
             }
             if (funcs.isArithmetic(current) || funcs.isUnary(current)) {
-                int arity = funcs.arity(current);
-                string label = "[" + to_string(iteration++) + "]";
-                cout << label << " = ";
-                if (last < arity) {
-                    throw runtime_error("Not enough arguments");
-                    return;
-                }
-                --last;
-                double prev = values[last];
-                double value;
-                if (arity == 1) {
-                    if (funcs.associativity(current) == LEFT) {
-                        cout << (current + " " + labels[last]);
-                    }
-                    else {
-                        cout << (labels[last] + " " + current);
-                    }
-                    value = funcs.call(current, prev, 0);
-                    cout << " = " << value << endl;
-                }
-                else {
-                    --last;
-                    value = funcs.call(current, values[last], prev);
-                    cout << labels[last] << " " << current << " " <<
-                        labels[last + 1] << " = " << value << endl;
-                }
-                labels[last] = label;
-                values[last] = value;
-                ++last;
+                message.printStep(current, funcs, iteration, last);
             }
         }
     }
     if (last == 1) {
         --last;
-        cout << "Finally: " << labels[last] << " = " << values[last] << endl;
+        message.printPairAt(last);
         return;
     }
-    throw runtime_error("Too many values entered");
+    throw runtime_error("Incorrect number of values entered");
 }
