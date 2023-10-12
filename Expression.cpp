@@ -70,7 +70,7 @@ void Expression::readWhile(string const& input, int& start, string& current, fun
 }
 
 void Expression::readWholeNumber(string const& input, int& start, string& current) {
-    return readWhile(input, start, current, [](char tok) { return SU::isIdent(string{ tok }) || tok == '.'; });
+    return readWhile(input, start, current, [](char tok) { return SU::isDigit(string{ tok }) || tok == '.'; });
 }
 
 void Expression::readWholeWord(string const& input, int& start, string& current) {
@@ -98,7 +98,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
         char tok = input[i];
         string current{ tok };
         if (current != " ") {
-            if (SU::isIdent(string{ tok })) {
+            if (SU::isDigit(string{ tok })) {
                 readWholeNumber(input, i, current);
                 output += current + DELIMITER;
             }
@@ -141,7 +141,7 @@ void Expression::printResult(Funcs& funcs) {
     int iteration = 0;
     for (int i = 0; i < length; ++i) {
         string current{ input[i] };
-        if (SU::isIdent(current)) {
+        if (SU::isDigit(current)) {
             readWholeNumber(input, i, current);
             ++i;
             labels[last] = current;
