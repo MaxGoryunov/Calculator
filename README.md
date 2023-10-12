@@ -24,7 +24,7 @@ Exponentiation: `exp(1.5)`
 
 Round function: `round(2.38)`
 
-Natural log: `ln(2.7)`
+Natural log: `ln(2.7)` 
 
 ## Supported inputs
 
