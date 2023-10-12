@@ -6,7 +6,7 @@ using std::string;
 
 class StringUtils {
 public:
-	static bool isIdent(string const& token) {
+	static bool isDigit(string const& token) {
 		return token >= "0" && token <= "9";
 	}
 
