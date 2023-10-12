@@ -15,7 +15,7 @@ using std::to_string;
 using std::runtime_error;
 using SU = StringUtils;
 
-bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Funcs& funcs) {
+bool Expression::rearrangeParentheses(stack<string>& tokens, Funcs& funcs) {
     string top;
     while (!tokens.empty()) {
         top = tokens.top();
@@ -24,7 +24,6 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
             break;
         }
         else {
-            output += top + DELIMITER;
             this->tokens.push_back(top);
         }
     }
@@ -34,7 +33,6 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
     if (!tokens.empty()) {
         top = tokens.top();
         if (funcs.isUnary(top)) {
-            output += top + DELIMITER;
             this->tokens.push_back(top);
             tokens.pop();
         }
@@ -42,12 +40,11 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
     return true;
 }
 
-void Expression::rearrangeOperators(stack<string>& tokens, string& current, string& output, Funcs& funcs) {
+void Expression::rearrangeOperators(stack<string>& tokens, string& current, Funcs& funcs) {
     while (!tokens.empty()) {
         string top = tokens.top();
         if (funcs.isArithmetic(top) && ((funcs.associativity(current) && (funcs.precedence(current) <= funcs.precedence(top)))
             || (!funcs.associativity(current) && (funcs.precedence(current) < funcs.precedence(top))))) {
-            output += top + DELIMITER;
             this->tokens.push_back(top);
             tokens.pop();
         }
@@ -82,14 +79,13 @@ void Expression::readWholeWord(string const& input, int& start, string& current)
     return readWhile(input, start, current, [](char tok) { return SU::isLetter(string{ tok }); });
 }
 
-bool Expression::tokensCleanup(stack<string> tokens, string& output) {
+bool Expression::tokensCleanup(stack<string> tokens) {
     while (!tokens.empty()) {
         string top = tokens.top();
         tokens.pop();
         if (top == "(" || top == ")") {
             throw runtime_error("Error: parentheses mismatched");
         }
-        output += top + DELIMITER;
         this->tokens.push_back(top);
     }
     return true;
@@ -117,13 +113,13 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
                 }
             }
             else if (funcs.isArithmetic(current)) {
-                rearrangeOperators(tokens, current, output, funcs);
+                rearrangeOperators(tokens, current, funcs);
             }
             else if (current == "(") {
                 tokens.push(current);
             }
             else if (current == ")") {
-                if (!rearrangeParentheses(tokens, output, funcs)) {
+                if (!rearrangeParentheses(tokens, funcs)) {
                     return;
                 }
             }
@@ -134,9 +130,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
             }
         }
     }
-    tokensCleanup(tokens, output);
-    cout << output << endl;
-    this->tokenized = output;
+    tokensCleanup(tokens);
 }
 
 void Expression::printResult(Funcs& funcs) {
