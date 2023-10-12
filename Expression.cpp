@@ -25,6 +25,7 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
         }
         else {
             output += top + DELIMITER;
+            this->tokens.push_back(top);
         }
     }
     if (tokens.empty() && top != "(") {
@@ -34,6 +35,7 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
         top = tokens.top();
         if (funcs.isUnary(top)) {
             output += top + DELIMITER;
+            this->tokens.push_back(top);
             tokens.pop();
         }
     }
@@ -46,6 +48,7 @@ void Expression::rearrangeOperators(stack<string>& tokens, string& current, stri
         if (funcs.isArithmetic(top) && ((funcs.associativity(current) && (funcs.precedence(current) <= funcs.precedence(top)))
             || (!funcs.associativity(current) && (funcs.precedence(current) < funcs.precedence(top))))) {
             output += top + DELIMITER;
+            this->tokens.push_back(top);
             tokens.pop();
         }
         else {
@@ -87,6 +90,7 @@ bool Expression::tokensCleanup(stack<string> tokens, string& output) {
             throw runtime_error("Error: parentheses mismatched");
         }
         output += top + DELIMITER;
+        this->tokens.push_back(top);
     }
     return true;
 }
@@ -103,6 +107,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
             if (SU::isDigit(string{ tok })) {
                 readWholeNumber(input, i, current);
                 output += current + DELIMITER;
+                this->tokens.push_back(current);
             }
             else if (SU::isLetter(string{ tok })) {
                 readWholeWord(input, i, current);
@@ -136,7 +141,6 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
 void Expression::printResult(Funcs& funcs) {
     string input = this->tokenized;
     int length = input.length();
-    //Funcs funcs;
     vector<string> labels(length);
     vector<double> values(length);
     int last = 0;
