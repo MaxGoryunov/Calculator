@@ -42,18 +42,16 @@ void Expression::readWholeWord(string const& input, int& start, string& current)
 
 void Expression::separateTokens(string const& input, Funcs& funcs) {
     Tokens tokens;
-    //Funcs funcs;
     int length = input.length();
     this->tokens.clear();
     for (int i = 0; i < length; ++i) {
-        char tok = input[i];
-        string current{ tok };
+        string current{ input[i] };
         if (current != " ") {
-            if (SU::isDigit(string{ tok })) {
+            if (SU::isDigit(current)) {
                 readWholeNumber(input, i, current);
                 this->tokens.push_back(current);
             }
-            else if (SU::isLetter(string{ tok })) {
+            else if (SU::isLetter(current)) {
                 readWholeWord(input, i, current);
                 if (funcs.isUnary(current)) {
                     tokens.push(current);
@@ -135,5 +133,5 @@ void Expression::printResult(Funcs& funcs) {
         cout << "Finally: " << labels[last] << " = " << values[last] << endl;
         return;
     }
-    throw runtime_error("Too many values entered");
+    throw runtime_error("Incorrect number of values entered");
 }
