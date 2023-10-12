@@ -3,6 +3,7 @@
 #include "Expression.h"
 #include "StringUtils.h"
 #include "Tokens.h"
+#include "CalculationMessage.h"
 
 using std::map;
 using std::string;
@@ -84,53 +85,29 @@ void Expression::printResult(Funcs& funcs) {
     vector<double> values(length);
     int last = 0;
     int iteration = 0;
+    CalculationMessage message(labels, values);
     for (int i = 0; i < length; ++i) {
         string current = this->tokens[i];
         if (SU::isNumber(current)) {
-            labels[last] = current;
-            values[last] = stod(current);
+            //labels[last] = current;
+            //values[last] = stod(current);
+            message.setLabel(current, last);
+            message.setValue(stod(current), last);
             ++last;
         }
         else {
             if (SU::isWord(current)) {
-                labels[last] = current;
+                //labels[last] = current;
+                message.setLabel(current, last);
             }
             if (funcs.isArithmetic(current) || funcs.isUnary(current)) {
-                int arity = funcs.arity(current);
-                string label = "[" + to_string(iteration++) + "]";
-                cout << label << " = ";
-                if (last < arity) {
-                    throw runtime_error("Not enough arguments");
-                    return;
-                }
-                --last;
-                double prev = values[last];
-                double value;
-                if (arity == 1) {
-                    if (funcs.associativity(current) == LEFT) {
-                        cout << (current + " " + labels[last]);
-                    }
-                    else {
-                        cout << (labels[last] + " " + current);
-                    }
-                    value = funcs.call(current, prev, 0);
-                    cout << " = " << value << endl;
-                }
-                else {
-                    --last;
-                    value = funcs.call(current, values[last], prev);
-                    cout << labels[last] << " " << current << " " <<
-                        labels[last + 1] << " = " << value << endl;
-                }
-                labels[last] = label;
-                values[last] = value;
-                ++last;
+                message.printStep(current, funcs, iteration, last);
             }
         }
     }
     if (last == 1) {
         --last;
-        cout << "Finally: " << labels[last] << " = " << values[last] << endl;
+        message.printPairAt(last);
         return;
     }
     throw runtime_error("Incorrect number of values entered");
