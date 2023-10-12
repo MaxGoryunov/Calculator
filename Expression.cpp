@@ -15,7 +15,7 @@ using std::to_string;
 using std::runtime_error;
 using SU = StringUtils;
 
-bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Funcs& funcs) {
+bool Expression::rearrangeParentheses(stack<string>& tokens, Funcs& funcs) {
     string top;
     while (!tokens.empty()) {
         top = tokens.top();
@@ -24,7 +24,7 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
             break;
         }
         else {
-            output += top + DELIMITER;
+            this->tokens.push_back(top);
         }
     }
     if (tokens.empty() && top != "(") {
@@ -33,19 +33,19 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
     if (!tokens.empty()) {
         top = tokens.top();
         if (funcs.isUnary(top)) {
-            output += top + DELIMITER;
+            this->tokens.push_back(top);
             tokens.pop();
         }
     }
     return true;
 }
 
-void Expression::rearrangeOperators(stack<string>& tokens, string& current, string& output, Funcs& funcs) {
+void Expression::rearrangeOperators(stack<string>& tokens, string& current, Funcs& funcs) {
     while (!tokens.empty()) {
         string top = tokens.top();
         if (funcs.isArithmetic(top) && ((funcs.associativity(current) && (funcs.precedence(current) <= funcs.precedence(top)))
             || (!funcs.associativity(current) && (funcs.precedence(current) < funcs.precedence(top))))) {
-            output += top + DELIMITER;
+            this->tokens.push_back(top);
             tokens.pop();
         }
         else {
@@ -79,14 +79,14 @@ void Expression::readWholeWord(string const& input, int& start, string& current)
     return readWhile(input, start, current, [](char tok) { return SU::isLetter(string{ tok }); });
 }
 
-bool Expression::tokensCleanup(stack<string> tokens, string& output) {
+bool Expression::tokensCleanup(stack<string> tokens) {
     while (!tokens.empty()) {
         string top = tokens.top();
         tokens.pop();
         if (top == "(" || top == ")") {
             throw runtime_error("Error: parentheses mismatched");
         }
-        output += top + DELIMITER;
+        this->tokens.push_back(top);
     }
     return true;
 }
@@ -96,6 +96,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
     //Funcs funcs;
     int length = input.length();
     string output = "";
+    this->tokens.clear();
     for (int i = 0; i < length; ++i) {
         char tok = input[i];
         string current{ tok };
@@ -103,6 +104,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
             if (SU::isDigit(string{ tok })) {
                 readWholeNumber(input, i, current);
                 output += current + DELIMITER;
+                this->tokens.push_back(current);
             }
             else if (SU::isLetter(string{ tok })) {
                 readWholeWord(input, i, current);
@@ -111,13 +113,13 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
                 }
             }
             else if (funcs.isArithmetic(current)) {
-                rearrangeOperators(tokens, current, output, funcs);
+                rearrangeOperators(tokens, current, funcs);
             }
             else if (current == "(") {
                 tokens.push(current);
             }
             else if (current == ")") {
-                if (!rearrangeParentheses(tokens, output, funcs)) {
+                if (!rearrangeParentheses(tokens, funcs)) {
                     return;
                 }
             }
@@ -128,34 +130,26 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
             }
         }
     }
-    tokensCleanup(tokens, output);
-    cout << output << endl;
-    this->tokenized = output;
+    tokensCleanup(tokens);
 }
 
 void Expression::printResult(Funcs& funcs) {
-    string input = this->tokenized;
-    int length = input.length();
-    //Funcs funcs;
+    int length = this->tokens.size();
     vector<string> labels(length);
     vector<double> values(length);
     int last = 0;
     int iteration = 0;
     for (int i = 0; i < length; ++i) {
-        string current{ input[i] };
-        if (SU::isDigit(current)) {
-            readWholeNumber(input, i, current);
-            ++i;
+        string current = this->tokens[i];
+        if (SU::isNumber(current)) {
             labels[last] = current;
             values[last] = stod(current);
             ++last;
         }
         else {
-            if (SU::isLetter(current)) {
-                readWholeWord(input, i, current);
+            if (SU::isWord(current)) {
                 labels[last] = current;
             }
-            ++i;
             if (funcs.isArithmetic(current) || funcs.isUnary(current)) {
                 int arity = funcs.arity(current);
                 string label = "[" + to_string(iteration++) + "]";
@@ -180,7 +174,7 @@ void Expression::printResult(Funcs& funcs) {
                 else {
                     --last;
                     value = funcs.call(current, values[last], prev);
-                    cout << labels[last] << " " << input[i - 1] << " " <<
+                    cout << labels[last] << " " << current << " " <<
                         labels[last + 1] << " = " << value << endl;
                 }
                 labels[last] = label;
