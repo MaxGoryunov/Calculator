@@ -6,6 +6,7 @@ using std::cout;
 using std::endl;
 using std::filesystem::path;
 using std::filesystem::directory_iterator;
+using std::vector;
 
 void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 	vector<path> paths;

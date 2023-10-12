@@ -17,6 +17,7 @@ using std::cin;
 using std::string;
 using std::getline;
 using std::runtime_error;
+using std::endl;
 
 int main() {
     Expression expression;

@@ -5,15 +5,12 @@
 #include <Windows.h>
 #include "Funcs.h"
 
-using std::string;
-using std::vector;
-
 class DllCatalogue {
 private:
-	string folder;
-	vector<HINSTANCE> libraries;
+	std::string folder;
+	std::vector<HINSTANCE> libraries;
 public:
-	DllCatalogue(string folder) : folder(folder), libraries({}) {}
+	DllCatalogue(std::string folder) : folder(folder), libraries({}) {}
 
 	void loadFuncsFromDll(Funcs& funcs);
 

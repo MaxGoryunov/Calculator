@@ -7,29 +7,26 @@
 #include "Precedence.h"
 #include "Associativity.h"
 
-using std::string;
-using std::function;
-
 class Func {
 private:
-	string name;
+	std::string name;
 	Precedence preced;
 	Associativity assoc;
 	int arity;
-	function<double(double, double)> func;
+	std::function<double(double, double)> func;
 public:
 	Func() = default;
 	Func(
-		string name,
+		std::string name,
 		Precedence preced,
 		Associativity assoc,
 		int arity,
-		function<double(double, double)> func
+		std::function<double(double, double)> func
 	) : name(name), preced(preced), assoc(assoc), arity(arity), func(func) {}
 
 	static Func fromLibrary(HINSTANCE const& library);
 
-	string& Name() { return this->name; }
+	std::string& Name() { return this->name; }
 
 	Precedence precedence() { return this->preced; }
 	
