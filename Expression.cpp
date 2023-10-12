@@ -95,7 +95,6 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
     stack<string> tokens;
     //Funcs funcs;
     int length = input.length();
-    string output = "";
     this->tokens.clear();
     for (int i = 0; i < length; ++i) {
         char tok = input[i];
@@ -103,7 +102,6 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
         if (current != " ") {
             if (SU::isDigit(string{ tok })) {
                 readWholeNumber(input, i, current);
-                output += current + DELIMITER;
                 this->tokens.push_back(current);
             }
             else if (SU::isLetter(string{ tok })) {

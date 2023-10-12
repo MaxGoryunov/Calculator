@@ -8,8 +8,6 @@
 
 class Expression {
 private:
-	static char const DELIMITER = ';';
-	std::string tokenized = "";
 	std::vector<std::string> tokens;
 	bool rearrangeParentheses(std::stack<std::string>& tokens, Funcs& funcs);
 	void rearrangeOperators(std::stack<std::string>& tokens, std::string& current, Funcs& funcs);
