@@ -1,5 +1,6 @@
 #include "Func.h"
 
+using std::string;
 template<typename T>
 using fun = std::function<T>;
 

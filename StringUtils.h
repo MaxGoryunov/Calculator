@@ -2,15 +2,17 @@
 
 #include <string>
 
-using std::string;
-
 class StringUtils {
 public:
-	static bool isIdent(string const& token) {
+	static bool isDigit(std::string const& token) {
 		return token >= "0" && token <= "9";
 	}
 
-	static bool isLetter(string const& token) {
+	static bool isLetter(std::string const& token) {
 		return (token >= "A" && token <= "Z") || (token >= "a" && token <= "z");
 	}
+
+	static bool isNumber(std::string const& token);
+
+	static bool isWord(std::string const& word);
 };

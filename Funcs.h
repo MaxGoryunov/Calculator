@@ -4,14 +4,9 @@
 #include <map>
 #include "Func.h"
 
-using std::string;
-using std::map;
-using std::cout;
-using std::endl;
-
 class Funcs {
 private:
-	map<string, Func> funcs;
+	std::map<std::string, Func> funcs;
 public:
 	Funcs() {
 		this->funcs["+"] = Func("+", SUM, LEFT, 2, [](double l, double r) { return l + r; });
@@ -20,45 +15,21 @@ public:
 		this->funcs["/"] = Func("/", DIV, LEFT, 2, [](double l, double r) { return l / r; });
 	}
 
-	void addFunc(string name, Func const& func) {
+	void addFunc(std::string name, Func const& func) {
 		this->funcs[name] = func;
 	}
 
-	Precedence precedence(string name) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].precedence();
-		}
-		cout << "Precedence of " << name << " is unknown" << endl;
-		return NO_PRECEDENCE;
-	}
+	Precedence precedence(std::string name);
 
-	Associativity associativity(string name) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].associativity();
-		}
-		cout << "Associativity of " << name << " is unknown" << endl;
-		return NO_ASSOCIATIVITY;
-	}
+	Associativity associativity(std::string name);
 
-	int arity(string name) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].Arity();
-		}
-		cout << "Arity of " << name << " is unknown" << endl;
-		return 2;
-	}
+	int arity(std::string name);
 
-	double call(string name, double left, double right) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].apply(left, right);
-		}
-		cout << "Functionality of " << name << " is unknown" << endl;
-		return 0;
-	}
+	double call(std::string name, double left, double right);
 
-	bool isUnary(string const& name);
+	bool isUnary(std::string const& name);
 
-	bool isArithmetic(string const& name);
+	bool isArithmetic(std::string const& name);
 
 	Funcs(Funcs const& other) = default;
 	Funcs(Funcs&& other) = default;

@@ -6,6 +6,7 @@ using std::cout;
 using std::endl;
 using std::filesystem::path;
 using std::filesystem::directory_iterator;
+using std::vector;
 
 void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 	vector<path> paths;
@@ -20,7 +21,7 @@ void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 				funcs.addFunc(func.Name(), func);
 			}
 			else {
-				cout << "Could not open .dll file " << filepath.c_str() << endl;
+				std::cerr << "Could not open .dll file " << filepath.c_str() << endl;
 			}
 		}
 	}
