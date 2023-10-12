@@ -2,6 +2,7 @@
 #include <functional>
 #include "Expression.h"
 #include "StringUtils.h"
+#include "Tokens.h"
 
 using std::map;
 using std::string;
@@ -14,46 +15,6 @@ using std::stod;
 using std::to_string;
 using std::runtime_error;
 using SU = StringUtils;
-
-bool Expression::rearrangeParentheses(stack<string>& tokens, Funcs& funcs) {
-    string top;
-    while (!tokens.empty()) {
-        top = tokens.top();
-        tokens.pop();
-        if (top == "(") {
-            break;
-        }
-        else {
-            this->tokens.push_back(top);
-        }
-    }
-    if (tokens.empty() && top != "(") {
-        throw runtime_error("Number of left and right parentheses does not match");
-    }
-    if (!tokens.empty()) {
-        top = tokens.top();
-        if (funcs.isUnary(top)) {
-            this->tokens.push_back(top);
-            tokens.pop();
-        }
-    }
-    return true;
-}
-
-void Expression::rearrangeOperators(stack<string>& tokens, string& current, Funcs& funcs) {
-    while (!tokens.empty()) {
-        string top = tokens.top();
-        if (funcs.isArithmetic(top) && ((funcs.associativity(current) && (funcs.precedence(current) <= funcs.precedence(top)))
-            || (!funcs.associativity(current) && (funcs.precedence(current) < funcs.precedence(top))))) {
-            this->tokens.push_back(top);
-            tokens.pop();
-        }
-        else {
-            break;
-        }
-    }
-    tokens.push(current);
-}
 
 void Expression::readWhile(string const& input, int& start, string& current, function<bool(char)> predicate) {
     int length = input.length();
@@ -79,20 +40,8 @@ void Expression::readWholeWord(string const& input, int& start, string& current)
     return readWhile(input, start, current, [](char tok) { return SU::isLetter(string{ tok }); });
 }
 
-bool Expression::tokensCleanup(stack<string> tokens) {
-    while (!tokens.empty()) {
-        string top = tokens.top();
-        tokens.pop();
-        if (top == "(" || top == ")") {
-            throw runtime_error("Error: parentheses mismatched");
-        }
-        this->tokens.push_back(top);
-    }
-    return true;
-}
-
 void Expression::separateTokens(string const& input, Funcs& funcs) {
-    stack<string> tokens;
+    Tokens tokens;
     //Funcs funcs;
     int length = input.length();
     this->tokens.clear();
@@ -111,13 +60,13 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
                 }
             }
             else if (funcs.isArithmetic(current)) {
-                rearrangeOperators(tokens, current, funcs);
+                tokens.rearrangeOperators(current, funcs, this->tokens);
             }
             else if (current == "(") {
                 tokens.push(current);
             }
             else if (current == ")") {
-                if (!rearrangeParentheses(tokens, funcs)) {
+                if (!tokens.rearrangeParentheses(funcs, this->tokens)) {
                     return;
                 }
             }
@@ -128,7 +77,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
             }
         }
     }
-    tokensCleanup(tokens);
+    tokens.cleanup(this->tokens);
 }
 
 void Expression::printResult(Funcs& funcs) {
