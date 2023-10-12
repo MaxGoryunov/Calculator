@@ -24,37 +24,13 @@ public:
 		this->funcs[name] = func;
 	}
 
-	Precedence precedence(string name) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].precedence();
-		}
-		cout << "Precedence of " << name << " is unknown" << endl;
-		return NO_PRECEDENCE;
-	}
+	Precedence precedence(string name);
 
-	Associativity associativity(string name) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].associativity();
-		}
-		cout << "Associativity of " << name << " is unknown" << endl;
-		return NO_ASSOCIATIVITY;
-	}
+	Associativity associativity(string name);
 
-	int arity(string name) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].Arity();
-		}
-		cout << "Arity of " << name << " is unknown" << endl;
-		return 2;
-	}
+	int arity(string name);
 
-	double call(string name, double left, double right) {
-		if (this->funcs.count(name) == 1) {
-			return this->funcs[name].apply(left, right);
-		}
-		cout << "Functionality of " << name << " is unknown" << endl;
-		return 0;
-	}
+	double call(string name, double left, double right);
 
 	bool isUnary(string const& name);
 
