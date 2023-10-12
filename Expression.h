@@ -9,7 +9,7 @@
 class Expression {
 private:
 	static char const DELIMITER = ';';
-	string tokenized = "";
+	std::string tokenized = "";
 	bool rearrangeParentheses(std::stack<std::string>& tokens, std::string& output, Funcs& funcs);
 	void rearrangeOperators(std::stack<std::string>& tokens, std::string& current, std::string& output, Funcs& funcs);
 	void readWhile(std::string const& input, int& start, std::string& current, std::function<bool(char)> predicate);

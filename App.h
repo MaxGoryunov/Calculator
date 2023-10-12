@@ -14,7 +14,7 @@ public:
 		libraries.loadFuncsFromDll(this->funcs);
 	}
 
-	void calculate(string& input);
+	void calculate(std::string& input);
 
 	App() = default;
 	App(App const& other) = default;
