@@ -11,4 +11,8 @@ public:
 	static bool isLetter(std::string const& token) {
 		return (token >= "A" && token <= "Z") || (token >= "a" && token <= "z");
 	}
+
+	static bool isNumber(std::string const& token);
+
+	static bool isWord(std::string const& word);
 };

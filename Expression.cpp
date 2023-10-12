@@ -100,6 +100,7 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
     //Funcs funcs;
     int length = input.length();
     string output = "";
+    this->tokens.clear();
     for (int i = 0; i < length; ++i) {
         char tok = input[i];
         string current{ tok };
@@ -139,27 +140,22 @@ void Expression::separateTokens(string const& input, Funcs& funcs) {
 }
 
 void Expression::printResult(Funcs& funcs) {
-    string input = this->tokenized;
-    int length = input.length();
+    int length = this->tokens.size();
     vector<string> labels(length);
     vector<double> values(length);
     int last = 0;
     int iteration = 0;
     for (int i = 0; i < length; ++i) {
-        string current{ input[i] };
-        if (SU::isDigit(current)) {
-            readWholeNumber(input, i, current);
-            ++i;
+        string current = this->tokens[i];
+        if (SU::isNumber(current)) {
             labels[last] = current;
             values[last] = stod(current);
             ++last;
         }
         else {
-            if (SU::isLetter(current)) {
-                readWholeWord(input, i, current);
+            if (SU::isWord(current)) {
                 labels[last] = current;
             }
-            ++i;
             if (funcs.isArithmetic(current) || funcs.isUnary(current)) {
                 int arity = funcs.arity(current);
                 string label = "[" + to_string(iteration++) + "]";
@@ -184,7 +180,7 @@ void Expression::printResult(Funcs& funcs) {
                 else {
                     --last;
                     value = funcs.call(current, values[last], prev);
-                    cout << labels[last] << " " << input[i - 1] << " " <<
+                    cout << labels[last] << " " << current << " " <<
                         labels[last + 1] << " = " << value << endl;
                 }
                 labels[last] = label;
