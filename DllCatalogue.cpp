@@ -20,7 +20,7 @@ void DllCatalogue::loadFuncsFromDll(Funcs& funcs) {
 				funcs.addFunc(func.Name(), func);
 			}
 			else {
-				cout << "Could not open .dll file " << filepath.c_str() << endl;
+				std::cerr << "Could not open .dll file " << filepath.c_str() << endl;
 			}
 		}
 	}

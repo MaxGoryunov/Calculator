@@ -10,6 +10,7 @@ using std::endl;
 using std::vector;
 using std::stod;
 using std::to_string;
+using std::runtime_error;
 using SU = StringUtils;
 
 bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Funcs& funcs) {
@@ -25,8 +26,7 @@ bool Expression::rearrangeParentheses(stack<string>& tokens, string& output, Fun
         }
     }
     if (tokens.empty() && top != "(") {
-        cout << "Number of left and right parentheses does not match" << endl;
-        return false;
+        throw runtime_error("Number of left and right parentheses does not match");
     }
     if (!tokens.empty()) {
         top = tokens.top();
@@ -82,8 +82,7 @@ bool Expression::tokensCleanup(stack<string> tokens, string& output) {
         string top = tokens.top();
         tokens.pop();
         if (top == "(" || top == ")") {
-            cout << "Error: parentheses mismatched" << endl;
-            return false;
+            throw runtime_error("Error: parentheses mismatched");
         }
         output += top + DELIMITER;
     }
@@ -160,7 +159,7 @@ void Expression::printResult(Funcs& funcs) {
                 string label = "[" + to_string(iteration++) + "]";
                 cout << label << " = ";
                 if (last < arity) {
-                    cout << "Not enough arguments" << endl;
+                    throw runtime_error("Not enough arguments");
                     return;
                 }
                 --last;
@@ -193,5 +192,5 @@ void Expression::printResult(Funcs& funcs) {
         cout << "Finally: " << labels[last] << " = " << values[last] << endl;
         return;
     }
-    cout << "Too many values entered" << endl;
+    throw runtime_error("Too many values entered");
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <stack>
 #include <functional>
+#include <stdexcept>
 #include "Funcs.h"
 
 using std::string;
