@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-using std::cerr;
+using std::string;
 using std::runtime_error;
 
 bool Funcs::isUnary(string const& name) {
